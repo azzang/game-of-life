@@ -1,0 +1,12 @@
+.header {
+  padding: 10px;
+  text-align: center;
+}
+
+.header h1 {
+  margin-top: 0;
+}
+
+.header .btn {
+  margin-right: 10px;
+}

@@ -1,0 +1,19 @@
+.cell {
+  width: 10px;
+  height: 10px;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  background: grey;
+}
+
+.row-0 {
+  border-top: none;
+}
+
+.col-0 {
+  border-left: none;
+}
+
+.alive {
+  background: yellow;
+}

@@ -1,0 +1,9 @@
+body.canvas {
+  background: black;
+  padding-top: 30px;
+}
+
+.App {
+  background: yellow;
+  margin: 0 auto;
+}

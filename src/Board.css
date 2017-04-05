@@ -1,0 +1,28 @@
+.board {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.small {
+  width: 500px;
+}
+
+.board.small {
+  height: 300px;
+}
+
+.medium {
+  width: 700px;
+}
+
+.board.medium {
+  height: 500px;
+}
+
+.large {
+  width: 1000px;
+}
+
+.board.large {
+  height: 800px;
+}
