@@ -7,32 +7,58 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      size: 'large'
+      value: 'running',
+      generation: 1
     }
   }
 
-  getCellCount() {
-    switch(this.state.size) {
-      case 'small':
-        return { across: 50, tall: 30 };
-      case 'medium':
-        return { across: 70 , tall: 50 };
-      case 'large':
-        return { across: 100, tall: 80 };
-      default: return;
+  setDimensions(size, cellsPerRow) {
+    this.setState({
+      size,
+      cellsPerRow,
+      cellsPerCol: cellsPerRow - 20
+    });
+  }
+
+  componentWillMount() {
+    console.log('game will mount...');
+
+    const innerWidth = window.innerWidth;
+    if (innerWidth >= 1000) {
+      //this.setDimensions('large', 100);
+      this.setDimensions('medium', 70);
+    } else if (innerWidth >= 700) {
+      this.setDimensions('medium', 70);
+    } else {
+      this.setDimensions('small', 50);
     }
   }
 
-  pause() {
-    this.setState({ headerState: 'paused' });
+  incrementGeneration() {
+    console.log(undefined ? 1 : this.state.generation + 1);
+    this.setState({
+      generation: this.state.generation + 1
+    });
   }
 
+  handleButtonClick(e) {
+    const newValue = e.target.id;
+    const newState = {};
+    if (newValue !== this.state.value) {
+      newState.value = newValue;
+      if (newValue === 'cleared') {
+        newState.generation = 1;
+      }
+      this.setState(newState);
+    }
+  }
 
   render() {
     return (
-      <div className={'App ' + this.state.size}>
-        <Header pause={this.pause.bind(this)} />
-        <Board size={this.state.size} cellsPerRow={this.getCellCount().across} cellsPerCol={this.getCellCount().tall} headerState={this.state.headerState}/>
+      <div className={`App ${this.state.size}`}>
+        <Header updateGameState={this.handleButtonClick.bind(this)} generation={this.state.generation}/>
+        <Board size={this.state.size} cellsPerRow={this.state.cellsPerRow} cellsPerCol={this.state.cellsPerCol}
+          incrementGeneration={this.incrementGeneration.bind(this)} gameState={this.state.value}/>
       </div>
     );
   }

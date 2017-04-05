@@ -6,14 +6,6 @@
   background: grey;
 }
 
-.row-0 {
-  border-top: none;
-}
-
-.col-0 {
-  border-left: none;
-}
-
 .alive {
-  background: yellow;
+  background: none;
 }

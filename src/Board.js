@@ -6,102 +6,98 @@ class Board extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cells: []
-    }
-    console.log(this.state.cells, 'CELLS');
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const newState = {};
-    if (nextProps.headerState === 'paused') {
-      window.clearInterval(this.state.gameID);
-      newState.gameID = null;
-    }
-    //this.setState({ isAlive: nextProps.isAlive });
+      //cells: []
+    };
+    console.log('board constructor called...');
   }
 
   componentWillMount() {
-    console.log('component will mount...');
-    this.init();
-    //this.start();
-    /*this.setState({
-      cells: this.init(),
-      gameID: setInterval(this.evolve.bind(this), 1000)
-    });*/
-  }
-
-  componentDidMount() {
-    console.log('component mounted...')
-    this.start();
-  }
-
-  /*start() {
-    this.setState({
-      gameID: setInterval(this.getEvolvedCells.bind(this), 1000)
-    });
-  }*/
-
-  start() {
-    this.setState({
-      gameID: setInterval(this.evolve.bind(this), 500)
-    });
-  }
-
-  evolve() {
-    this.traverse(this.setCellAliveness.bind(this));
-    //this.setState({
-      //cells: this.traverse()
-    //});
-  }
-
-
-
-  /*
-  Any live cell with fewer than two live neighbours dies
-  Any live cell with two or three live neighbours lives
-  Any live cell with more than three live neighbours dies,
-  Any dead cell with exactly three live neighbours becomes a live cell,
-  */
-
-  countLiveNeighbors(row, col, cells) {
-    let count = 0;
-    let neighborRow;
-    let neighborCol;
-    for (var i = 0; i < 9; i++) {
-      neighborRow = row + Math.floor(i / 3) - 1;
-      neighborCol = col + i % 3 - 1;
-      if (i !== 4 && cells[neighborRow] && cells[neighborRow][neighborCol]) {
-        count += 1;
-      }
-    }
-    return count;
-  }
-
-  setCellAliveness(row, col, cells, newCells) {
-    const liveCount = this.countLiveNeighbors(row, col, cells);
-    if (liveCount === 3 || (cells[row][col] && liveCount === 2)) {
-      newCells[row][col] = true;
-    } else {
-      newCells[row][col] = false;
-    }
-  }
-
-  init() {
+    //console.log('component will mount...');
     this.traverse((row, col, cells, newCells) => {
       newCells[row][col] = Math.random() < 0.5;
     });
   }
 
-  /*getCellComponents() {
-    return this.traverse((row, col, cells, newCells) => {
-      //newCells.push(<Cell row={row} col={col} isAlive={cells[row][col]}/>);
-      newCells[row][col] = <Cell row={row} col={col} isAlive={cells[row][col]}/>;
-    });
-  }*/
+  componentDidMount() {
+    //console.log('component mounted...')
+    this.run();
+  }
 
-  stuff() {
+  componentWillReceiveProps(nextProps) {
+    console.log('board getting new props...');
+    const gameState = nextProps.gameState;
+
+    if (gameState === 'running' && !this.state.timerID) {
+      this.run();
+    }
+
+    if (gameState === 'paused') {
+      this.pause();
+    }
+
+    if (gameState === 'cleared') {
+      this.clear();
+    }
+  }
+
+  toggleAliveness(targetRow, targetCol) {
+    const gameState = this.props.gameState;
+    if (gameState === 'paused' || gameState === 'cleared') {
+      this.traverse((row, col, cells, newCells) => {
+        if (row === targetRow && col === targetCol) {
+          newCells[row][col] = !cells[row][col];
+        } else {
+          newCells[row][col] = cells[row][col];
+        }
+      });
+    }
+  }
+
+  clear() {
+    //this.props.setGeneration(true);
+    this.pause();
+    this.traverse((row, col, cells, newCells) => {
+      newCells[row][col] = false;
+    });
+    //this.props.setGeneration(true);
+  }
+
+  run() {
+    this.setState({
+      timerID: setInterval(this.evolve.bind(this), 500)
+    });
+  }
+
+  pause() {
+    window.clearInterval(this.state.timerID);
+    this.setState({timerID: null});
+  }
+
+  evolve() {
+    this.props.incrementGeneration();
+    this.traverse(this.setCellAliveness.bind(this));
+  }
+
+  setCellAliveness(row, col, cells, newCells) {
+    const isAlive = cells[row][col];
+    let count = isAlive ? -1 : 0;
+    for (let neighborRow = row - 1; neighborRow < row + 2; neighborRow++) {
+      for (let neighborCol = col - 1; neighborCol < col + 2; neighborCol++) {
+        if (cells[neighborRow] && cells[neighborRow][neighborCol]) {
+          count += 1;
+          if (count > 3) {
+            return newCells[row][col] = false;
+          }
+        }
+      }
+    }
+    newCells[row][col] = count === 3 || (isAlive && count === 2);
+  }
+
+  getCellComponents() {
+    console.log('getting cell components...');
     return this.state.cells.map((row, i) =>
-      row.map((col, j) => <Cell row={i} col={j} isAlive={col}/>));
+      row.map((col, j) => <Cell toggleAliveness={this.toggleAliveness.bind(this, i, j)} isAlive={col}/>));
   }
 
   traverse(action) {
@@ -115,12 +111,12 @@ class Board extends Component {
         action(row, col, cells, newCells);
       }
     }
-    this.setState({ cells: newCells });
+    this.setState({cells: newCells});
   }
 
   render() {
     return (
-      <main className={"board " + this.props.size}>{this.stuff()}</main>
+      <main className={`board ${this.props.size}`}>{this.getCellComponents()}</main>
     );
   }
 }
