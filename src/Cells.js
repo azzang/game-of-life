@@ -1,47 +1,37 @@
 import React, { Component } from 'react';
-import Cell from './Cell';
-import './Board.css';
+import './Cells.css';
 
-class Board extends Component {
+class Cells extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      //cells: []
-    };
-    console.log('board constructor called...');
+    this.state = {};
   }
 
   componentWillMount() {
-    //console.log('component will mount...');
     this.traverse((row, col, cells, newCells) => {
       newCells[row][col] = Math.random() < 0.5;
     });
   }
 
   componentDidMount() {
-    //console.log('component mounted...')
     this.run();
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('board getting new props...');
-    const gameState = nextProps.gameState;
-
+    const {gameState} = nextProps;
     if (gameState === 'running' && !this.state.timerID) {
       this.run();
     }
-
-    if (gameState === 'paused') {
+    if (gameState === 'paused' || gameState === 'cleared') {
       this.pause();
     }
-
     if (gameState === 'cleared') {
       this.clear();
     }
   }
 
   toggleAliveness(targetRow, targetCol) {
-    const gameState = this.props.gameState;
+    const {gameState} = this.props;
     if (gameState === 'paused' || gameState === 'cleared') {
       this.traverse((row, col, cells, newCells) => {
         if (row === targetRow && col === targetCol) {
@@ -51,15 +41,6 @@ class Board extends Component {
         }
       });
     }
-  }
-
-  clear() {
-    //this.props.setGeneration(true);
-    this.pause();
-    this.traverse((row, col, cells, newCells) => {
-      newCells[row][col] = false;
-    });
-    //this.props.setGeneration(true);
   }
 
   run() {
@@ -73,6 +54,12 @@ class Board extends Component {
     this.setState({timerID: null});
   }
 
+  clear() {
+    this.traverse((row, col, cells, newCells) => {
+      newCells[row][col] = false;
+    });
+  }
+
   evolve() {
     this.props.incrementGeneration();
     this.traverse(this.setCellAliveness.bind(this));
@@ -80,24 +67,24 @@ class Board extends Component {
 
   setCellAliveness(row, col, cells, newCells) {
     const isAlive = cells[row][col];
-    let count = isAlive ? -1 : 0;
+    let liveCount = isAlive ? -1 : 0;
     for (let neighborRow = row - 1; neighborRow < row + 2; neighborRow++) {
       for (let neighborCol = col - 1; neighborCol < col + 2; neighborCol++) {
         if (cells[neighborRow] && cells[neighborRow][neighborCol]) {
-          count += 1;
-          if (count > 3) {
+          liveCount += 1;
+          if (liveCount > 3) {
             return newCells[row][col] = false;
           }
         }
       }
     }
-    newCells[row][col] = count === 3 || (isAlive && count === 2);
+    newCells[row][col] = liveCount === 3 || (isAlive && liveCount === 2);
   }
 
-  getCellComponents() {
-    console.log('getting cell components...');
+  getCells() {
     return this.state.cells.map((row, i) =>
-      row.map((col, j) => <Cell toggleAliveness={this.toggleAliveness.bind(this, i, j)} isAlive={col}/>));
+      row.map((col, j) => (<div className={`cell${col ? ' alive' : ''}`}
+        onClick={this.toggleAliveness.bind(this, i, j)}></div>)));
   }
 
   traverse(action) {
@@ -116,9 +103,9 @@ class Board extends Component {
 
   render() {
     return (
-      <main className={`board ${this.props.size}`}>{this.getCellComponents()}</main>
+      <div className={`cells ${this.props.size}`}>{this.getCells()}</div>
     );
   }
 }
 
-export default Board;
+export default Cells;

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Header from './Header';
-import Board from './Board';
-import './App.css';
+import Cells from './Cells';
+import './Game.css';
 
-class App extends Component {
+class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,12 +21,9 @@ class App extends Component {
   }
 
   componentWillMount() {
-    console.log('game will mount...');
-
     const innerWidth = window.innerWidth;
     if (innerWidth >= 1000) {
-      //this.setDimensions('large', 100);
-      this.setDimensions('medium', 70);
+      this.setDimensions('large', 100);
     } else if (innerWidth >= 700) {
       this.setDimensions('medium', 70);
     } else {
@@ -35,18 +32,17 @@ class App extends Component {
   }
 
   incrementGeneration() {
-    console.log(undefined ? 1 : this.state.generation + 1);
     this.setState({
       generation: this.state.generation + 1
     });
   }
 
   handleButtonClick(e) {
-    const newValue = e.target.id;
+    const newGameState = e.target.id;
     const newState = {};
-    if (newValue !== this.state.value) {
-      newState.value = newValue;
-      if (newValue === 'cleared') {
+    if (newGameState !== this.state.value) {
+      newState.value = newGameState;
+      if (newGameState === 'cleared') {
         newState.generation = 1;
       }
       this.setState(newState);
@@ -55,13 +51,13 @@ class App extends Component {
 
   render() {
     return (
-      <div className={`App ${this.state.size}`}>
+      <div className={`game ${this.state.size}`}>
         <Header updateGameState={this.handleButtonClick.bind(this)} generation={this.state.generation}/>
-        <Board size={this.state.size} cellsPerRow={this.state.cellsPerRow} cellsPerCol={this.state.cellsPerCol}
+        <Cells size={this.state.size} cellsPerRow={this.state.cellsPerRow} cellsPerCol={this.state.cellsPerCol}
           incrementGeneration={this.incrementGeneration.bind(this)} gameState={this.state.value}/>
       </div>
     );
   }
 }
 
-export default App;
+export default Game;

@@ -1,0 +1,28 @@
+.cells {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.cells.small {
+  height: 300px;
+}
+
+.cells.medium {
+  height: 500px;
+}
+
+.cells.large {
+  height: 800px;
+}
+
+.cell {
+  width: 10px;
+  height: 10px;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  background: grey;
+}
+
+.alive {
+  background: yellow;
+}
