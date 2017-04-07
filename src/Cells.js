@@ -91,10 +91,8 @@ class Cells extends Component {
     const cells = this.state.cells;
     const newCells = [];
     for (let row = 0; row < this.props.cellsPerCol; row++) {
+      newCells[row] = [];
       for (let col = 0; col < this.props.cellsPerRow; col++) {
-        if (col === 0) {
-          newCells.push([]);
-        }
         action(row, col, cells, newCells);
       }
     }
