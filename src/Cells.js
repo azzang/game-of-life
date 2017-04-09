@@ -83,7 +83,7 @@ class Cells extends Component {
 
   getCells() {
     return this.state.cells.map((row, i) =>
-      row.map((col, j) => (<div className={`cell${col ? ' alive' : ''}`}
+      row.map((col, j) => (<div className={`${col ? 'cell alive' : 'cell'}`}
         onClick={this.toggleAliveness.bind(this, i, j)}></div>)));
   }
 
